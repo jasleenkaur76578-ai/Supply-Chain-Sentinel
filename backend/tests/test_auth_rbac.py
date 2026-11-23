@@ -10,7 +10,7 @@ from app.database import engine, Base, SessionLocal
 from app.seed_data import seed_enterprise_demonstration
 from app.models.organization import User
 from app.schemas.auth import RegisterRequest, UserAdminUpdate
-from app.security.auth import get_current_user, require_role, decode_access_token
+from app.security.auth import get_current_user, require_role, decode_access_token, create_access_token
 from app.api.routes_auth import register
 from app.api.routes_admin import get_admin_overview, list_users, update_user, get_audit_logs
 
@@ -109,3 +109,20 @@ def test_admin_console_endpoints():
         logs = get_audit_logs(current_user=admin, db=db)
         assert len(logs) >= 1
         assert any(l["action"] == "ADMIN_USER_UPDATED" for l in logs)
+
+def test_jwt_resolves_by_email_across_containers():
+    """Ensure a signed JWT resolves by email if container-local UUID differs."""
+    with SessionLocal() as db:
+        admin = db.query(User).filter(User.role == "super_admin").first()
+        assert admin is not None
+
+        token = create_access_token(data={
+            "sub": str(uuid.uuid4()),
+            "email": admin.email,
+            "full_name": admin.full_name,
+            "org_id": admin.org_id,
+            "role": admin.role,
+        })
+        resolved = get_current_user(token=token, db=db)
+        assert resolved.email == admin.email
+        assert resolved.role == "super_admin"

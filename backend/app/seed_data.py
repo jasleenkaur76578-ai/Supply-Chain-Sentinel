@@ -9,6 +9,9 @@ from app.models.remediation import RemediationTask, SecurityAlert
 from app.security.auth import get_password_hash
 from app.config import settings
 
+def stable_uuid(key: str) -> str:
+    return str(uuid.uuid5(uuid.NAMESPACE_DNS, f"supply-chain-sentinel:{key}"))
+
 def seed_enterprise_demonstration(db: Session):
     # Check if already seeded
     existing = db.query(Organization).filter(Organization.slug == "gflc").first()
@@ -17,6 +20,7 @@ def seed_enterprise_demonstration(db: Session):
         existing_admin = db.query(User).filter(User.email == admin_email).first()
         if not existing_admin:
             db.add(User(
+                id=stable_uuid(f"user:{admin_email}"),
                 org_id=existing.id,
                 email=admin_email,
                 hashed_password=get_password_hash(settings.ADMIN_PASSWORD),
@@ -31,7 +35,7 @@ def seed_enterprise_demonstration(db: Session):
 
     # 1. Create Organization
     org = Organization(
-        id=str(uuid.uuid4()),
+        id=stable_uuid("org:gflc"),
         name="Global Financial & Logistics Corp",
         slug="gflc",
         risk_policy={
@@ -48,15 +52,18 @@ def seed_enterprise_demonstration(db: Session):
     db.flush()
 
     # 2. Create Users across 5 Enterprise Roles
+    admin_email = settings.ADMIN_EMAIL.strip().lower()
     users = [
         User(
+            id=stable_uuid(f"user:{admin_email}"),
             org_id=org.id,
-            email=settings.ADMIN_EMAIL.strip().lower(),
+            email=admin_email,
             hashed_password=get_password_hash(settings.ADMIN_PASSWORD),
             full_name=settings.ADMIN_FULL_NAME,
             role="super_admin"
         ),
         User(
+            id=stable_uuid("user:ciso@sentinel.defense.org"),
             org_id=org.id,
             email="ciso@sentinel.defense.org",
             hashed_password=get_password_hash("SentinelCiso2026!"),
@@ -64,6 +71,7 @@ def seed_enterprise_demonstration(db: Session):
             role="org_admin"
         ),
         User(
+            id=stable_uuid("user:analyst@sentinel.defense.org"),
             org_id=org.id,
             email="analyst@sentinel.defense.org",
             hashed_password=get_password_hash("SentinelAnalyst2026!"),
@@ -71,6 +79,7 @@ def seed_enterprise_demonstration(db: Session):
             role="security_analyst"
         ),
         User(
+            id=stable_uuid("user:engineer@sentinel.defense.org"),
             org_id=org.id,
             email="engineer@sentinel.defense.org",
             hashed_password=get_password_hash("SentinelEngineer2026!"),
@@ -78,6 +87,7 @@ def seed_enterprise_demonstration(db: Session):
             role="security_engineer"
         ),
         User(
+            id=stable_uuid("user:exec@sentinel.defense.org"),
             org_id=org.id,
             email="exec@sentinel.defense.org",
             hashed_password=get_password_hash("SentinelExec2026!"),
@@ -91,6 +101,7 @@ def seed_enterprise_demonstration(db: Session):
 
     # 3. Create Business Services
     srv_trans = BusinessService(
+        id=stable_uuid("svc:trans"),
         org_id=org.id,
         name="Core Cardholder Transaction Processing",
         criticality="MISSION_CRITICAL",
@@ -98,6 +109,7 @@ def seed_enterprise_demonstration(db: Session):
         owner_team="FinTech Core Infrastructure"
     )
     srv_freight = BusinessService(
+        id=stable_uuid("svc:freight"),
         org_id=org.id,
         name="Global Maritime Freight Routing",
         criticality="BUSINESS_OPERATIONAL",
@@ -105,6 +117,7 @@ def seed_enterprise_demonstration(db: Session):
         owner_team="Logistics Systems Operations"
     )
     srv_checkout = BusinessService(
+        id=stable_uuid("svc:checkout"),
         org_id=org.id,
         name="Customer Digital Commerce Checkout",
         criticality="MISSION_CRITICAL",
@@ -116,6 +129,7 @@ def seed_enterprise_demonstration(db: Session):
 
     # 4. Create Applications
     app_payment = Application(
+        id=stable_uuid("app:payment"),
         org_id=org.id,
         name="Enterprise Payment Gateway",
         repository_url="https://github.com/enterprise/payment-gateway-service",
@@ -127,6 +141,7 @@ def seed_enterprise_demonstration(db: Session):
     app_payment.business_services = [srv_trans, srv_checkout]
 
     app_order = Application(
+        id=stable_uuid("app:order"),
         org_id=org.id,
         name="Order Fulfillment Engine",
         repository_url="https://github.com/enterprise/order-fulfillment-engine",
@@ -138,6 +153,7 @@ def seed_enterprise_demonstration(db: Session):
     app_order.business_services = [srv_checkout, srv_freight]
 
     app_portal = Application(
+        id=stable_uuid("app:portal"),
         org_id=org.id,
         name="Customer Self-Service Portal",
         repository_url="https://github.com/enterprise/customer-web-portal",
@@ -149,6 +165,7 @@ def seed_enterprise_demonstration(db: Session):
     app_portal.business_services = [srv_checkout]
 
     app_telemetry = Application(
+        id=stable_uuid("app:telemetry"),
         org_id=org.id,
         name="Logistics Telemetry Hub",
         repository_url="https://github.com/enterprise/logistics-telemetry-hub",
@@ -164,6 +181,7 @@ def seed_enterprise_demonstration(db: Session):
 
     # 5. Create Suppliers
     sup_apache = Supplier(
+        id=stable_uuid("sup:apache"),
         org_id=org.id,
         name="Apache Software Foundation",
         contact_email="security@apache.org",
@@ -171,6 +189,7 @@ def seed_enterprise_demonstration(db: Session):
         security_assessment_score=92.0
     )
     sup_spring = Supplier(
+        id=stable_uuid("sup:spring"),
         org_id=org.id,
         name="Spring.io / VMware Tanzu",
         contact_email="security@spring.io",
@@ -178,6 +197,7 @@ def seed_enterprise_demonstration(db: Session):
         security_assessment_score=95.0
     )
     sup_fastcdn = Supplier(
+        id=stable_uuid("sup:fastcdn"),
         org_id=org.id,
         name="FastEdge Micro-Vendor",
         contact_email="ops@fastedge.vendor.net",
@@ -259,6 +279,7 @@ def seed_enterprise_demonstration(db: Session):
 
     # 7. Create SBOM Documents and Components for Payment Gateway
     sbom_pay = SBOMDocument(
+        id=stable_uuid("sbom:payment"),
         application_id=app_payment.id,
         format="CYCLONEDX_JSON",
         spec_version="1.4",
@@ -273,6 +294,7 @@ def seed_enterprise_demonstration(db: Session):
     app_payment.active_sbom_id = sbom_pay.id
 
     c_spring_boot = Component(
+        id=stable_uuid("comp:payment:spring-starter"),
         sbom_id=sbom_pay.id,
         supplier_id=sup_spring.id,
         purl="pkg:maven/org.springframework.boot/spring-boot-starter-web@2.5.4",
@@ -284,6 +306,7 @@ def seed_enterprise_demonstration(db: Session):
         depth=1
     )
     c_spring_logging = Component(
+        id=stable_uuid("comp:payment:log4j-api"),
         sbom_id=sbom_pay.id,
         supplier_id=sup_spring.id,
         purl="pkg:maven/org.springframework.boot/spring-boot-starter-logging@2.5.4",
@@ -295,6 +318,7 @@ def seed_enterprise_demonstration(db: Session):
         depth=2
     )
     c_log4j_pay = Component(
+        id=stable_uuid("comp:payment:log4j-core"),
         sbom_id=sbom_pay.id,
         supplier_id=sup_apache.id,
         purl="pkg:maven/org.apache.logging.log4j/log4j-core@2.14.1",
@@ -306,6 +330,7 @@ def seed_enterprise_demonstration(db: Session):
         depth=3
     )
     c_jackson = Component(
+        id=stable_uuid("comp:payment:jackson"),
         sbom_id=sbom_pay.id,
         supplier_id=sup_apache.id,
         purl="pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.12.4",
@@ -335,6 +360,7 @@ def seed_enterprise_demonstration(db: Session):
 
     # 8. Create SBOM for Order Fulfillment (shares log4j-core directly!)
     sbom_order = SBOMDocument(
+        id=stable_uuid("sbom:order"),
         application_id=app_order.id,
         format="CYCLONEDX_JSON",
         spec_version="1.4",
@@ -349,6 +375,7 @@ def seed_enterprise_demonstration(db: Session):
     app_order.active_sbom_id = sbom_order.id
 
     c_log4j_order = Component(
+        id=stable_uuid("comp:order:log4j-core"),
         sbom_id=sbom_order.id,
         supplier_id=sup_apache.id,
         purl="pkg:maven/org.apache.logging.log4j/log4j-core@2.14.1",
@@ -360,6 +387,7 @@ def seed_enterprise_demonstration(db: Session):
         depth=1
     )
     c_okhttp = Component(
+        id=stable_uuid("comp:order:okhttp"),
         sbom_id=sbom_order.id,
         supplier_id=sup_apache.id,
         purl="pkg:maven/com.squareup.okhttp3/okhttp@4.9.1",
@@ -384,6 +412,7 @@ def seed_enterprise_demonstration(db: Session):
 
     # 9. Create SBOM for Customer Portal (Spring4Shell & Lodash)
     sbom_portal = SBOMDocument(
+        id=stable_uuid("sbom:portal"),
         application_id=app_portal.id,
         format="SPDX_JSON",
         spec_version="2.3",
@@ -398,6 +427,7 @@ def seed_enterprise_demonstration(db: Session):
     app_portal.active_sbom_id = sbom_portal.id
 
     c_spring_beans = Component(
+        id=stable_uuid("comp:portal:spring-beans"),
         sbom_id=sbom_portal.id,
         supplier_id=sup_spring.id,
         purl="pkg:maven/org.springframework/spring-beans@5.3.17",
@@ -409,6 +439,7 @@ def seed_enterprise_demonstration(db: Session):
         depth=1
     )
     c_lodash_portal = Component(
+        id=stable_uuid("comp:portal:lodash"),
         sbom_id=sbom_portal.id,
         supplier_id=sup_fastcdn.id,
         purl="pkg:npm/lodash@4.17.11",
@@ -440,6 +471,7 @@ def seed_enterprise_demonstration(db: Session):
 
     # 10. Remediation Tasks
     task_1 = RemediationTask(
+        id=stable_uuid("task:log4j-payment"),
         org_id=org.id,
         application_id=app_payment.id,
         component_id=c_log4j_pay.id,
@@ -454,6 +486,7 @@ def seed_enterprise_demonstration(db: Session):
         compensating_controls="JVM argument -Dlog4j2.formatMsgNoLookups=true set; AWS WAF Log4j inspection rule enabled on ingress."
     )
     task_2 = RemediationTask(
+        id=stable_uuid("task:spring4shell-portal"),
         org_id=org.id,
         application_id=app_portal.id,
         component_id=c_spring_beans.id,
@@ -471,6 +504,7 @@ def seed_enterprise_demonstration(db: Session):
 
     # 11. Security Alerts
     alert_1 = SecurityAlert(
+        id=stable_uuid("alert:kev-gateway"),
         org_id=org.id,
         title="CRITICAL ALERT: CISA KEV Exploited Component in Production Gateway",
         message="Active CISA KEV entry CVE-2021-44228 identified in transitive dependency log4j-core@2.14.1 affecting Internet-exposed Enterprise Payment Gateway.",
@@ -479,6 +513,7 @@ def seed_enterprise_demonstration(db: Session):
         entity_id=v_log4j.id
     )
     alert_2 = SecurityAlert(
+        id=stable_uuid("alert:shared-blast"),
         org_id=org.id,
         title="Shared Dependency Blast Radius Warning",
         message="Package log4j-core@2.14.1 is shared between Enterprise Payment Gateway and Order Fulfillment Engine, creating unified downstream exposure.",

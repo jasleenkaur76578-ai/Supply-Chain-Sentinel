@@ -37,8 +37,9 @@ class ApiClient {
       ...(options.headers as Record<string, string> || {}),
     };
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    const activeToken = this.token || localStorage.getItem('sentinel_jwt_token');
+    if (activeToken) {
+      headers['Authorization'] = `Bearer ${activeToken}`;
     }
 
     if (!(options.body instanceof FormData) && !headers['Content-Type']) {

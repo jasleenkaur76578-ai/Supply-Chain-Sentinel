@@ -1,3 +1,5 @@
+import os
+import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Optional, List
 from fastapi import Depends, HTTPException, status
@@ -7,7 +9,7 @@ import bcrypt
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from app.config import settings
-from app.database import get_db
+from app.database import get_db, database_url
 from app.models.organization import User, Organization
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login", auto_error=False)
@@ -59,6 +61,30 @@ def get_current_user(
         raise credentials_exception
 
     user = db.query(User).filter(User.id == user_id).first()
+    if user is None and payload.get("email"):
+        user = db.query(User).filter(User.email == payload["email"].strip().lower()).first()
+
+    if (
+        user is None
+        and os.environ.get("VERCEL")
+        and "sqlite" in database_url.lower()
+        and payload.get("email")
+    ):
+        org = db.query(Organization).first()
+        if org:
+            user = User(
+                id=user_id,
+                org_id=org.id,
+                email=payload["email"].strip().lower(),
+                full_name=payload.get("full_name") or "Platform User",
+                role=payload.get("role") or "security_analyst",
+                hashed_password=get_password_hash(str(uuid.uuid4())),
+                is_active=True,
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+
     if user is None or not user.is_active:
         raise credentials_exception
     return user

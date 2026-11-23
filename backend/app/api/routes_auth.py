@@ -31,7 +31,13 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     db.commit()
 
     org = db.query(Organization).filter(Organization.id == user.org_id).first()
-    token = create_access_token(data={"sub": user.id, "org_id": user.org_id, "role": user.role})
+    token = create_access_token(data={
+        "sub": user.id,
+        "email": user.email,
+        "full_name": user.full_name,
+        "org_id": user.org_id,
+        "role": user.role,
+    })
 
     AuditLoggerService.log_event(
         db,
@@ -112,7 +118,13 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
-    token = create_access_token(data={"sub": new_user.id, "org_id": new_user.org_id, "role": new_user.role})
+    token = create_access_token(data={
+        "sub": new_user.id,
+        "email": new_user.email,
+        "full_name": new_user.full_name,
+        "org_id": new_user.org_id,
+        "role": new_user.role,
+    })
 
     AuditLoggerService.log_event(
         db,
