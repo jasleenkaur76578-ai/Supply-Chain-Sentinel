@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bom xmlns="http://cyclonedx.org/schema/bom/1.4" serialNumber="urn:uuid:3e671687-395b-41f5-a30f-a58921a69b79" version="1">
+  <metadata>
+    <timestamp>2026-11-20T10:00:00Z</timestamp>
+    <component type="application">
+      <name>Payment Gateway Service</name>
+      <version>2.4.0</version>
+      <purl>pkg:maven/com.sentinel.payment/payment-gateway@2.4.0?type=jar</purl>
+    </component>
+  </metadata>
+  <components>
+    <component type="library">
+      <group>org.springframework.boot</group>
+      <name>spring-boot-starter-web</name>
+      <version>2.5.4</version>
+      <purl>pkg:maven/org.springframework.boot/spring-boot-starter-web@2.5.4?type=jar</purl>
+      <licenses>
+        <license>
+          <id>Apache-2.0</id>
+        </license>
+      </licenses>
+    </component>
+    <component type="library">
+      <group>org.apache.logging.log4j</group>
+      <name>log4j-core</name>
+      <version>2.14.1</version>
+      <purl>pkg:maven/org.apache.logging.log4j/log4j-core@2.14.1?type=jar</purl>
+      <licenses>
+        <license>
+          <id>Apache-2.0</id>
+        </license>
+      </licenses>
+    </component>
+    <component type="library">
+      <group>com.fasterxml.jackson.core</group>
+      <name>jackson-databind</name>
+      <version>2.12.5</version>
+      <purl>pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.12.5?type=jar</purl>
+      <licenses>
+        <license>
+          <id>Apache-2.0</id>
+        </license>
+      </licenses>
+    </component>
+  </components>
+  <dependencies>
+    <dependency ref="pkg:maven/com.sentinel.payment/payment-gateway@2.4.0?type=jar">
+      <dependency ref="pkg:maven/org.springframework.boot/spring-boot-starter-web@2.5.4?type=jar"/>
+    </dependency>
+    <dependency ref="pkg:maven/org.springframework.boot/spring-boot-starter-web@2.5.4?type=jar">
+      <dependency ref="pkg:maven/org.apache.logging.log4j/log4j-core@2.14.1?type=jar"/>
+      <dependency ref="pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.12.5?type=jar"/>
+    </dependency>
+  </dependencies>
+</bom>

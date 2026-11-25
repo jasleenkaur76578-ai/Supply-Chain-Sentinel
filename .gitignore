@@ -1,0 +1,32 @@
+# Python caches & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+venv/
+.venv/
+env/
+*.egg-info/
+
+# Node.js / Frontend build artifacts
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+
+# Environment & secrets (keep .env.example tracked)
+.env
+.env.local
+.env.*.local
+
+# Local SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# OS & IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

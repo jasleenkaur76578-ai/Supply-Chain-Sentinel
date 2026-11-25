@@ -1,0 +1,87 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.4.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "serialNumber": "urn:uuid:7b923184-4821-4d1a-bf82-f6723b7a1e50",
+  "version": 2,
+  "metadata": {
+    "timestamp": "2026-11-23T14:30:00Z",
+    "tools": [
+      {
+        "vendor": "CycloneDX",
+        "name": "Node.js Module",
+        "version": "4.0.0"
+      }
+    ],
+    "component": {
+      "type": "application",
+      "name": "Payment Gateway Service",
+      "version": "2.4.1",
+      "purl": "pkg:maven/com.sentinel.payment/payment-gateway@2.4.1?type=jar"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "spring-boot-starter-web",
+      "group": "org.springframework.boot",
+      "version": "2.5.8",
+      "purl": "pkg:maven/org.springframework.boot/spring-boot-starter-web@2.5.8?type=jar",
+      "licenses": [{ "license": { "id": "Apache-2.0" } }]
+    },
+    {
+      "type": "library",
+      "name": "spring-boot-starter-log4j2",
+      "group": "org.springframework.boot",
+      "version": "2.5.8",
+      "purl": "pkg:maven/org.springframework.boot/spring-boot-starter-log4j2@2.5.8?type=jar",
+      "licenses": [{ "license": { "id": "Apache-2.0" } }]
+    },
+    {
+      "type": "library",
+      "name": "log4j-core",
+      "group": "org.apache.logging.log4j",
+      "version": "2.17.1",
+      "purl": "pkg:maven/org.apache.logging.log4j/log4j-core@2.17.1?type=jar",
+      "licenses": [{ "license": { "id": "Apache-2.0" } }]
+    },
+    {
+      "type": "library",
+      "name": "log4j-api",
+      "group": "org.apache.logging.log4j",
+      "version": "2.17.1",
+      "purl": "pkg:maven/org.apache.logging.log4j/log4j-api@2.17.1?type=jar",
+      "licenses": [{ "license": { "id": "Apache-2.0" } }]
+    },
+    {
+      "type": "library",
+      "name": "jackson-databind",
+      "group": "com.fasterxml.jackson.core",
+      "version": "2.12.5",
+      "purl": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.12.5?type=jar",
+      "licenses": [{ "license": { "id": "Apache-2.0" } }]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:maven/com.sentinel.payment/payment-gateway@2.4.1?type=jar",
+      "dependsOn": [
+        "pkg:maven/org.springframework.boot/spring-boot-starter-web@2.5.8?type=jar",
+        "pkg:maven/org.springframework.boot/spring-boot-starter-log4j2@2.5.8?type=jar"
+      ]
+    },
+    {
+      "ref": "pkg:maven/org.springframework.boot/spring-boot-starter-log4j2@2.5.8?type=jar",
+      "dependsOn": [
+        "pkg:maven/org.apache.logging.log4j/log4j-core@2.17.1?type=jar",
+        "pkg:maven/org.apache.logging.log4j/log4j-api@2.17.1?type=jar"
+      ]
+    },
+    {
+      "ref": "pkg:maven/org.springframework.boot/spring-boot-starter-web@2.5.8?type=jar",
+      "dependsOn": [
+        "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.12.5?type=jar"
+      ]
+    }
+  ]
+}
