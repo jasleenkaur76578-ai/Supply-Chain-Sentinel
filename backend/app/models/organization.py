@@ -10,13 +10,9 @@ def gen_uuid():
 def utc_now():
     return datetime.now(timezone.utc)
 
-class Organization(Base):
-    __tablename__ = "organizations"
 
-    id = Column(String(36), primary_key=True, default=gen_uuid)
-    name = Column(String(255), nullable=False, unique=True)
-    slug = Column(String(100), nullable=False, unique=True)
-    risk_policy = Column(JSON, default={
+def default_risk_policy():
+    return {
         "weights": {
             "cvss": 0.25,
             "epss": 0.20,
@@ -24,7 +20,15 @@ class Organization(Base):
             "criticality": 0.15,
             "exposure": 0.15
         }
-    })
+    }
+
+class Organization(Base):
+    __tablename__ = "organizations"
+
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    name = Column(String(255), nullable=False, unique=True)
+    slug = Column(String(100), nullable=False, unique=True)
+    risk_policy = Column(JSON, default=default_risk_policy)
     created_at = Column(DateTime, default=utc_now)
     updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
 

@@ -59,7 +59,7 @@ class AuditLog(Base):
     action = Column(String(100), nullable=False) # AUTH_LOGIN, SBOM_UPLOAD, REMEDIATION_UPDATE, AI_QUERY, etc.
     target_resource = Column(String(255), default="")
     ip_address = Column(String(45), default="127.0.0.1")
-    details = Column(JSON, default={})
+    details = Column(JSON, default=dict, nullable=False)
     timestamp = Column(DateTime, default=utc_now)
 
     organization = relationship("Organization", back_populates="audit_logs")
